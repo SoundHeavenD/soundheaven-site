@@ -3,7 +3,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☁</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SoundHeaven</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.76.0/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
@@ -357,7 +357,14 @@ function renderHome(){$("cats").innerHTML=keys.map(k=>`<div class="csec" id="sec
 $("nav").innerHTML=keys.map(k=>`<button onclick="go('cat','${k}')">${CATS[k].n}</button>`).join("");
 $("ticks").innerHTML=keys.map(k=>`<i data-t="${CATS[k].n}" onclick="goSec('${k}')"></i>`).join("");
 /* ---------- BANCO DE DADOS (Supabase) + painel do administrador ---------- */
-const SB=(/^https?:/.test(window.SB_URL||"")&&window.supabase)?supabase.createClient(window.SB_URL,window.SB_KEY):null;
+const cleanUrl=u=>{u=String(u||"").trim();const m=u.match(/dashboard\/project\/([a-z0-9]+)/i);return m?"https://"+m[1]+".supabase.co":u.replace(/\/(rest|auth)\/v1.*$/,"").replace(/\/+$/,"")};
+const SB=(/^https:\/\/[^\/]+$/.test(cleanUrl(window.SB_URL))&&window.supabase&&String(window.SB_KEY||"").length>20)?supabase.createClient(cleanUrl(window.SB_URL),String(window.SB_KEY).trim()):null;
+function why(){
+  if(!window.supabase)return "A biblioteca do Supabase não carregou (verifique a internet ou bloqueadores de anúncio).";
+  if(window.SB_URL===undefined)return "O arquivo config.js não foi encontrado: envie o config.js para o GitHub, na mesma pasta do index.html.";
+  if(!/^https:\/\/[^\/]+$/.test(cleanUrl(window.SB_URL)))return "A URL no config.js está incorreta (deve ser algo como https://xxxx.supabase.co).";
+  return "A chave no config.js está vazia ou incompleta: copie de novo a chave pública do Supabase.";
+}
 const ALLF=["conexao","design","formato","anc","sig","tipo","amp","tamanho"];
 function rebuild(){PRODUCTS=SB?DBP:BASE;renderHome();
   if(CUR.v==="admin")adminList();else if(CUR.v==="cat"||CUR.v==="catalog"){drawSide();drawGrid()}else if(CUR.v==="guide")renderGuide()}
@@ -406,14 +413,18 @@ function adminList(){
 function adminView(){
   const on=ADMIN&&!!SB;
   $("alogin").hidden=on;$("aform").hidden=!on;$("alist").hidden=!on;$("alogout").hidden=!on;
-  $("l_msg").textContent=SB?"":"Banco de dados ainda não configurado (veja o guia).";
+  $("l_msg").textContent=SB?"":why();
   if(on){adminList();SB.auth.getSession().then(({data})=>{$("who").textContent=data.session?"Conectado como "+data.session.user.email:""})}
 }
 function setAdmin(on,mail){ADMIN=on;$("alogout").textContent=on?"Sair da conta ("+mail+")":"Sair da conta";$("adminBtn").hidden=!on;if(CUR.v==="admin")adminView()}
 async function login(){
   if(!SB){adminView();return}
-  const {error}=await SB.auth.signInWithPassword({email:$("l_mail").value.trim(),password:$("l_pass").value});
-  $("l_msg").textContent=error?"E-mail ou senha incorretos.":"";
+  $("l_msg").textContent="Entrando...";
+  try{
+    const {error}=await SB.auth.signInWithPassword({email:$("l_mail").value.trim(),password:$("l_pass").value});
+    const m=error?error.message:"";
+    $("l_msg").textContent=!error?"":/invalid login/i.test(m)?"E-mail ou senha incorretos.":/not confirmed/i.test(m)?"E-mail ainda não confirmado: no Supabase, confirme este usuário.":/api key|jwt/i.test(m)?"A chave do config.js foi recusada: copie de novo a chave pública do Supabase.":/disabled/i.test(m)?"Login por e-mail está desativado no Supabase.":"Erro: "+m;
+  }catch(e){$("l_msg").textContent="Não foi possível conectar ao Supabase: confira a URL no config.js."}
 }
 async function logout(){await SB.auth.signOut();go("home")}
 renderHome();buildForm();
