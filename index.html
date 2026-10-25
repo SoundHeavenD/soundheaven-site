@@ -246,20 +246,15 @@ button:active{transform:scale(.97)}
 .ph-l{display:flex;align-items:center;justify-content:flex-end;gap:18px;padding:10px 44px 10px 0;border-right:1px solid var(--line)}
 #catview .pagehead p{padding-left:44px;max-width:none;font-size:1rem;line-height:1.6;margin:0}
 @media(max-width:860px){#catview .pagehead{grid-template-columns:1fr;gap:10px}.ph-l{justify-content:flex-start;padding:0;border:0}#catview .pagehead p{padding:0}}
-/* ---- título da categoria à esquerda e texto à direita; menu à esquerda no celular; seção ponte ---- */
+/* ---- título da categoria à esquerda e texto à direita; menu à esquerda no celular ---- */
 #catview .pagehead h2{margin-right:auto}
 #catview .pagehead p{flex:0 1 480px;margin:0;text-align:left}
 .logo,nav,.hr,.burger{grid-row:1}
 .burger{grid-column:1;justify-self:start}
-.bridge{padding:90px 0 10px}
-.bridge h2{font-family:var(--head);font-weight:500;font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.15;letter-spacing:-.01em;margin:14px 0 12px}
-.bridge .bl{color:var(--mute);max-width:640px;line-height:1.6}
-.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:34px}
-.steps3>div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;transition:border-color .3s,transform .3s}
-.steps3 h3{font-family:var(--head);font-weight:500;font-size:1.25rem;margin:10px 0 8px}
-.steps3 p{color:var(--mute);font-size:.92rem;line-height:1.55}
-@media(hover:hover){.steps3>div:hover{border-color:var(--blue);transform:translateY(-3px)}}
-@media(max-width:860px){.steps3{grid-template-columns:1fr}.bridge{padding-top:64px}}
+/* ---- setinha discreta para as categorias ---- */
+.down{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--mute);opacity:.65;animation:nudge 2.6s ease-in-out infinite;transition:opacity .3s,color .3s}
+@keyframes nudge{50%{transform:translateX(-50%) translateY(6px)}}
+@media(hover:hover){.down:hover{opacity:1;color:var(--blue)}}
 </style></head>
 <body>
 <header><div class="wrap">
@@ -286,18 +281,9 @@ button:active{transform:scale(.97)}
       <button class="ghost mono" onclick="go('catalog')">Ver o catálogo ↗</button></div>
     </div>
     <div class="helpcard"><button class="big" onclick="go('guide')">Ajude-me a escolher meu fone ideal</button></div>
-  </div></section>
-  <section class="bridge"><div class="wrap">
-  <span class="mono">Como funciona</span>
-  <h2>Sua ponte até as melhores ofertas de áudio</h2>
-  <p class="bl">O SoundHeaven não vende produtos: reunimos equipamentos de lojas parceiras e levamos você direto até a oferta, com a facilidade de comparar tudo em um só lugar.</p>
-  <div class="steps3">
-   <div><b class="mono">01</b><h3>Descubra</h3><p>Navegue por earphones, headphones, DACs, DAPs e caixas de som.</p></div>
-   <div><b class="mono">02</b><h3>Compare e escolha</h3><p>Use os filtros ou o guia do fone ideal para achar o que combina com o seu gosto.</p></div>
-   <div><b class="mono">03</b><h3>Siga para a loja</h3><p>Clique no produto e vá direto para a página do anunciante oficial, onde a compra é feita.</p></div>
-  </div>
-</div></section>
-<section class="bigcats" id="bigcats"><div class="wrap"><h2>Categorias</h2><div id="cats"></div></div></section>
+  </div><button class="down" aria-label="Ver categorias" onclick="document.getElementById('bigcats').scrollIntoView({behavior:'smooth'})"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+  </section>
+  <section class="bigcats" id="bigcats"><div class="wrap"><h2>Categorias</h2><div id="cats"></div></div></section>
 </div>
 
 <div class="wrap" id="mainwrap">
@@ -334,7 +320,7 @@ let ADMIN=false,HIDE=false,DBP=[],EDIT=null,DB=null,DELQ=null,LAST="",CUR={v:"ho
 let OPEN={},S={},BM=false,PR=[null,null],ORD="",CURC="",BND=[0,0];
 let selG=new Set(),selS=null,selA="",selC="",selT="";
 const IO=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");IO.unobserve(x.target)}}),{threshold:.06}):null;
-function revealInit(){if(!IO)return;document.querySelectorAll(".csec,.bridge").forEach(e=>{e.classList.add("rv");IO.observe(e)})}
+function revealInit(){if(!IO)return;document.querySelectorAll(".csec").forEach(e=>{e.classList.add("rv");IO.observe(e)})}
 /* =====================================================================
    PRODUTOS DE EXEMPLO (o painel Admin é a forma normal de gerenciar).
    P(nome, marca, preço, categoria, {campos extras})
