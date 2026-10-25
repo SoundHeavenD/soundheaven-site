@@ -61,9 +61,9 @@ background:radial-gradient(ellipse 45% 55% at 100% 8%,var(--blob),transparent 70
 .csec h3{font-family:var(--head);font-weight:500;font-size:clamp(2rem,4vw,3rem);letter-spacing:-.01em}
 .csec .all{margin-left:auto}
 .csec .all:hover{color:var(--blue)}
-.helpcard .big{position:relative;animation:halo 7s ease-out infinite;transition:transform .3s}
+.helpcard .big{position:relative;transition:transform .3s}
 .helpcard .big:hover{transform:scale(1.08)}
-@media(prefers-reduced-motion:reduce){.helpcard,.helpcard .big,.helpcard .big::after{animation:none}}
+@media(prefers-reduced-motion:reduce){.helpcard,.helpcard .big,.helpcard .big::before{animation:none}}
 .filters{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:18px}
 .filters label{display:flex;flex-direction:column;gap:6px}
 .filters select{font:inherit;font-size:.9rem;letter-spacing:0;text-transform:none;color:var(--blue);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:150px;cursor:pointer}
@@ -113,19 +113,15 @@ background:radial-gradient(ellipse 45% 55% at 100% 8%,var(--blob),transparent 70
 footer{border-top:1px solid var(--line);padding:26px;text-align:center}
 @media(max-width:860px){nav{display:none}.hero .wrap,.bigcat,.pagehead{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.bigcat .im{order:-1!important;min-height:200px}.ticks{display:none}.search{margin-left:auto;width:40px}}
 @media(max-width:540px){.grid{grid-template-columns:1fr}}
-.layout{display:grid;grid-template-columns:250px 1fr;gap:36px;align-items:start}
+.layout{display:block}
 .layout.nof{grid-template-columns:1fr}.layout.nof .fside{display:none}
-.fside{position:sticky;top:96px;max-height:calc(100vh - 110px);overflow:auto;padding-right:8px}
 .fg{padding:14px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
 .fg label{display:flex;gap:8px;align-items:center;font-size:.92rem;cursor:pointer}
 .fg input[type=checkbox]{accent-color:var(--blue);width:16px;height:16px}
 .fg input[type=range]{width:100%;accent-color:var(--blue)}
 .fg select{font:inherit;font-size:.9rem;color:var(--blue);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
 .more{display:block;padding:10px 0 0;text-decoration:underline;color:var(--blue)}
-.layout .grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
-.layout .card .im{height:260px}.layout .card .box{padding:24px 0}
 .dyn{display:contents}
-@media(max-width:860px){.layout{grid-template-columns:1fr}.fside{position:static;max-height:none}}
 details.fg{display:block}
 .fg summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
 .fg summary::-webkit-details-marker{display:none}
@@ -135,7 +131,6 @@ details.fg{display:block}
 .fg label{margin-bottom:8px}
 .tbar{display:flex;gap:18px;align-items:center;margin-bottom:14px}
 .tbar .more{padding:0;display:inline}.tbar .note{margin:0}
-.layout.fclosed{grid-template-columns:1fr}.layout.fclosed .fside{display:none}
 footer.foot{text-align:left;padding:44px 0 30px;margin-top:40px}
 .foot p{color:var(--mute);font-size:.88rem;line-height:1.6;max-width:780px;margin-bottom:12px}
 .foot .soc{display:flex;gap:18px;margin:22px 0}
@@ -167,6 +162,22 @@ footer.foot{text-align:left;padding:44px 0 30px;margin-top:40px}
 }
 @media(max-width:540px){.grid,.layout .grid{grid-template-columns:1fr}.card .im,.layout .card .im{height:260px}}
 @media(hover:none){.card .go{transform:none}.card .box{padding-bottom:44px}}
+.fside{position:fixed;left:0;top:calc(72px + env(safe-area-inset-top,0px));bottom:0;width:min(320px,86vw);background:var(--card);border-right:1px solid var(--line);box-shadow:0 0 50px rgba(30,97,164,.18);padding:6px 22px 30px;overflow:auto;z-index:35;transform:translateX(-105%);transition:transform .45s cubic-bezier(.22,.8,.3,1)}
+.layout.fopen .fside{transform:none}
+.fback{position:fixed;inset:0;background:rgba(30,97,164,.14);opacity:0;pointer-events:none;transition:opacity .45s;z-index:34}
+.layout.fopen .fback{opacity:1;pointer-events:auto}
+.fhead{display:flex;justify-content:space-between;align-items:center;padding:16px 0 6px}
+.fhead button{color:var(--blue);text-decoration:underline}
+.tbar #ftog{padding:10px 20px;border:1px solid var(--blue);border-radius:24px;text-decoration:none;display:inline-block;color:var(--blue);transition:.25s}
+.tbar #ftog:hover{background:var(--blue);color:#fff}
+.helpcard .big::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;animation:pulse 7s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 10px rgba(111,178,234,.55)}22%,100%{box-shadow:0 0 0 46px rgba(111,178,234,0)}}
+@media(prefers-reduced-motion:reduce){.fside,.fback{transition:none}}
+@media(max-width:860px){
+ header .wrap{gap:10px}
+ .search input{right:0;top:calc(100% + 20px);transform:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+ .search:hover input,.search:focus-within input,.search input:not(:placeholder-shown){width:min(78vw,300px)}
+}
 [hidden]{display:none!important}
 .admbtn{padding:8px 14px;border:1px solid var(--blue);border-radius:20px;color:var(--blue);margin-left:6px}
 .aform{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin:18px 0 30px}
@@ -205,7 +216,7 @@ footer.foot{text-align:left;padding:44px 0 30px;margin-top:40px}
 <div class="wrap">
   <div class="view" id="catview"><button class="back mono" onclick="go('home')">‹ Voltar</button>
     <div class="pagehead"><span class="mono" id="cnum"></span><h2 id="ctitle"></h2><p id="cdesc"></p></div>
-    <div class="layout" id="clayout"><div class="fside" id="cfilters"></div><div><div class="tbar"><button class="more mono" id="ftog" onclick="togF()">Ocultar filtros</button><span class="note" id="ccount2"></span></div><div class="grid" id="pgrid"></div></div></div></div>
+    <div class="layout" id="clayout"><div class="fback" onclick="togF()"></div><div class="fside" id="cfilters"></div><div><div class="tbar"><button class="more mono" id="ftog" onclick="togF()">Mostrar filtros</button><span class="note" id="ccount2"></span></div><div class="grid" id="pgrid"></div></div></div></div>
   <div class="view" id="admin"><button class="back mono" onclick="go('home')">‹ Voltar</button>
     <div class="pagehead" style="grid-template-columns:1fr"><h2>Painel de administração</h2></div>
     <div class="aform" id="alogin"><label class="mono">E-mail<input id="l_mail" type="email" autocomplete="username"></label><label class="mono">Senha<input id="l_pass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"></label><div class="full"><button class="big sm" onclick="login()">Entrar</button> <span class="note" id="l_msg"></span></div></div>
@@ -241,11 +252,11 @@ let selG=new Set(),selS=null,selA="";
 const P=(nome,marca,preco,cat,x)=>({nome,marca,preco,cat,desc:"Descrição curta do produto.",img:"",link:"#",...x});
 const E=(n,m,p,x)=>P("Earphone Exemplo "+n,m,p,"earphones",x), H=(n,m,p,x)=>P("Headphone Exemplo "+n,m,p,"headphones",x);
 const BASE=[
- E("V1","Marca A","R$ 450",{conexao:"Cabeado",design:"Intra-auricular",anc:"Passivo",sig:"v"}),
- E("Bass","Marca B","R$ 320",{conexao:"Cabeado",design:"Intra-auricular",anc:"Passivo",sig:"basshead"}),
- E("Studio","Marca A","R$ 1.290",{conexao:"Cabeado",design:"Intra-auricular",anc:"Passivo",sig:"neutro"}),
+ E("V1","Marca A","R$ 450",{conexao:"Cabeado P2/P3",design:"Intra-auricular",anc:"Passivo",sig:"v"}),
+ E("Bass","Marca B","R$ 320",{conexao:"Cabeado P2/P3",design:"Intra-auricular",anc:"Passivo",sig:"basshead"}),
+ E("Studio","Marca A","R$ 1.290",{conexao:"Cabeado P2/P3",design:"Intra-auricular",anc:"Passivo",sig:"neutro"}),
  E("Warm","Marca C","R$ 780",{conexao:"Bluetooth",design:"Semi-auricular",anc:"Ativo",sig:"quente"}),
- E("Detail","Marca B","R$ 2.100",{conexao:"Cabeado",design:"Intra-auricular",anc:"Passivo",sig:"frio"}),
+ E("Detail","Marca B","R$ 2.100",{conexao:"Cabeado DSP",design:"Intra-auricular",anc:"Passivo",sig:"frio"}),
  E("Open","Marca C","R$ 640",{conexao:"Bluetooth",design:"Open-ear",anc:"Passivo",sig:"energetico"}),
  H("Fun","Marca C","R$ 890",{conexao:"Bluetooth",design:"Over-Ear",formato:"Fechado",anc:"Ativo",sig:"v"}),
  H("Reference","Marca A","R$ 3.490",{conexao:"Cabeado",design:"Over-Ear",formato:"Aberto",anc:"Passivo",sig:"neutro"}),
@@ -288,7 +299,7 @@ const GL=Object.keys(GENRES);
 /* FILTROS POR CATEGORIA: [campo, rótulo, [[valor,texto],...]] — "Marca" e preço são automáticos */
 const O=a=>a.map(x=>[x,x]), SIGO=Object.keys(SIGS).map(k=>[k,SIGS[k].n]), ANC=O(["Ativo","Passivo"]), SIGF=["sig","Assinatura sonora/Tunning",SIGO], ANCF=["anc","Cancelamento de ruído",ANC];
 const FLD={
- earphones:[["conexao","Conexão",O(["Bluetooth","Cabeado"])],["design","Design de construção",O(["Intra-auricular","Semi-auricular","Open-ear"])],ANCF,SIGF],
+ earphones:[["conexao","Conexão",O(["Bluetooth","Cabeado DSP","Cabeado P2/P3"])],["design","Design de construção",O(["Intra-auricular","Semi-auricular","Open-ear"])],ANCF,SIGF],
  headphones:[["conexao","Conexão",O(["Bluetooth","Cabeado","Dongle"])],["design","Design de construção",O(["Over-Ear","On-Ear"])],["formato","Formato acústico",O(["Aberto","Fechado"])],ANCF,SIGF],
  dacs:[["tipo","Tipo de formato",O(["Dongles","DACs de mesa"])],["amp","Amplificador integrado",O(["Sim","Não"])]],
  daps:[],
@@ -312,7 +323,7 @@ function go(v,arg){
   $("catview").style.display=(v==="cat"||v==="search"||v==="catalog")?"block":"none";
   $("guide").style.display=v==="guide"?"block":"none";
   $("admin").style.display=v==="admin"?"block":"none";
-  $("clayout").classList.toggle("nof",v==="search");$("ftog").hidden=v==="search";
+  $("clayout").classList.toggle("nof",v==="search");$("ftog").hidden=v==="search";$("clayout").classList.remove("fopen");$("ftog").textContent="Mostrar filtros";
   if(v==="cat"||v==="catalog"){
     const c=v==="cat"?arg:"";
     $("cnum").textContent=c?num(c):"";$("ctitle").textContent=c?CATS[c].n:"Catálogo completo";
@@ -327,7 +338,8 @@ function go(v,arg){
   if(v==="admin")adminView();
   scrollTo(0,0);
 }
-function togF(){const c=$("clayout").classList.toggle("fclosed");$("ftog").textContent=c?"Mostrar filtros":"Ocultar filtros"}
+function togF(){const c=$("clayout").classList.toggle("fopen");$("ftog").textContent=c?"Ocultar filtros":"Mostrar filtros"}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("clayout").classList.contains("fopen"))togF()});
 function goSec(k){if($("home").style.display==="none")go("home");setTimeout(()=>{const e=$("sec-"+k);if(e)scrollTo({top:e.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})},30)}
 function doSearch(){const q=$("q").value.trim();if(q){go("search",q);document.querySelector(".search").classList.remove("open")}}
 function sbtn(){const s=document.querySelector(".search");if(matchMedia("(max-width:860px)").matches&&!s.classList.contains("open")){s.classList.add("open");$("q").focus();return}doSearch()}
@@ -342,7 +354,7 @@ function drawSide(){
   const brands=[...new Set(sc.map(p=>p.marca).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt"));
   const shown=BM?brands:brands.filter((b,i)=>i<10||(S.marca||[]).includes(b));
   const grp=(f,l,o)=>`<details class="fg" data-g="${f}" ${OPEN[f]?"open":""}><summary class="mono">${l}</summary><label><input type="checkbox" data-f="${f}" data-all ${S[f]?"":"checked"}> Todos</label>${o.map(([v,t])=>`<label><input type="checkbox" data-f="${f}" data-v="${esc(v)}" ${(S[f]||[]).includes(v)?"checked":""}> ${esc(t)}</label>`).join("")}</details>`;
-  let h=schema(CURC).map(([f,l,o])=>grp(f,l,o)).join("");
+  let h=`<div class="fhead"><b class="mono">Filtros</b><button class="mono" onclick="togF()">Fechar ×</button></div>`+schema(CURC).map(([f,l,o])=>grp(f,l,o)).join("");
   if(brands.length)h+=grp("marca","Marca",shown.map(b=>[b,b]))+(brands.length>10?`<button class="more mono" onclick="BM=!BM;drawSide()">${BM?"Mostrar menos":"Mostrar mais"}</button>`:"");
   h+=`<details class="fg" data-g="ord" ${OPEN.ord?"open":""}><summary class="mono">Ordenar por preço</summary><select onchange="ORD=this.value;drawGrid()"><option value="">Padrão</option><option value="asc" ${ORD==="asc"?"selected":""}>Menor preço</option><option value="desc" ${ORD==="desc"?"selected":""}>Maior preço</option></select></details>`;
   if(BND[1]>BND[0])h+=`<details class="fg" data-g="preco" ${OPEN.preco?"open":""}><summary class="mono">Faixa de preço</summary><div id="pv"></div><input type="range" id="pr0" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(0,this.value)"><input type="range" id="pr1" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(1,this.value)"></details>`;
