@@ -34,7 +34,7 @@ nav button:hover::after{transform:scaleX(1)}
 .hero{min-height:100vh;display:flex;align-items:center;padding:110px 0 50px;position:relative;
 background:radial-gradient(ellipse 45% 55% at 100% 8%,var(--blob),transparent 70%),radial-gradient(ellipse 35% 45% at 0% 100%,#dbe9ec,transparent 70%),var(--bg)}
 .hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:center;width:100%}
-.hero h1{font-family:var(--head);font-weight:500;font-size:clamp(2.8rem,6.4vw,5.2rem);line-height:1.15;letter-spacing:-.02em;margin:18px 0 26px}
+.hero h1{font-family:var(--head);font-weight:500;font-size:clamp(2.4rem,5.2vw,4.4rem);line-height:1.15;letter-spacing:-.02em;margin:18px 0 26px}
 .hero p.lead{color:var(--mute);font-size:1.1rem;line-height:1.55;max-width:480px;margin-bottom:34px}
 .btns{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .big{padding:24px 40px;font-size:1.25rem;font-weight:600;border-radius:60px;background:var(--blue);color:#fff;box-shadow:0 12px 32px rgba(30,97,164,.3);transition:.2s}
@@ -142,6 +142,31 @@ footer.foot{text-align:left;padding:44px 0 30px;margin-top:40px}
 .foot .soc a{width:32px;height:32px;display:block}
 .foot .soc img{width:100%;height:100%;object-fit:contain;transition:.2s}
 .foot .soc a:hover img{transform:translateY(-3px)}
+.burger{display:none;width:40px;height:40px;align-items:center;justify-content:center;flex:none}
+.mmenu{display:none;position:fixed;top:calc(72px + env(safe-area-inset-top,0px));left:0;right:0;z-index:39;background:var(--bg);border-bottom:1px solid var(--line);padding:6px 24px 16px}
+.mmenu.open{display:block}
+.mmenu button{display:block;width:100%;text-align:left;padding:14px 0;border-bottom:1px solid var(--line);font-family:var(--head);font-size:1.15rem}
+@media(max-width:860px){
+ .burger{display:flex}
+ header .wrap{gap:8px;height:64px}
+ .logo{height:46px}
+ .mmenu{top:calc(64px + env(safe-area-inset-top,0px))}
+ .hero{min-height:100svh;padding:90px 0 40px}
+ .hero .wrap{gap:36px}
+ .hero h1{font-size:clamp(2.4rem,11vw,3.4rem)}
+ .helpcard .big{padding:34px 24px;font-size:1.45rem;border-radius:26px}
+ .view{padding-top:96px}
+ .card .im,.layout .card .im{height:230px}
+ .card .box{padding:20px 0}
+ .csec{padding:70px 0 20px;margin-top:40px}
+ .grid,.layout .grid{grid-template-columns:1fr 1fr;gap:14px}
+ .card .row{font-size:1rem;flex-direction:column;gap:2px}
+ .pagehead h2,.csec h3{font-size:2rem}
+ .search.open input{width:min(58vw,240px);opacity:1;background:var(--bg);padding-left:8px}
+ .bigcats{padding:60px 0 20px}
+}
+@media(max-width:540px){.grid,.layout .grid{grid-template-columns:1fr}.card .im,.layout .card .im{height:260px}}
+@media(hover:none){.card .go{transform:none}.card .box{padding-bottom:44px}}
 [hidden]{display:none!important}
 .admbtn{padding:8px 14px;border:1px solid var(--blue);border-radius:20px;color:var(--blue);margin-left:6px}
 .aform{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin:18px 0 30px}
@@ -158,16 +183,17 @@ footer.foot{text-align:left;padding:44px 0 30px;margin-top:40px}
   <img class="logo" data-logo alt="SoundHeaven" onclick="go('home')">
   <nav id="nav"></nav>
   <div class="search"><input id="q" placeholder="Pesquisar" onkeydown="if(event.key==='Enter')doSearch()">
-    <button onclick="doSearch()" aria-label="Pesquisar"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1e61a4" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button></div>
-<button id="adminBtn" class="mono admbtn" onclick="go('admin')" hidden>Admin</button></div></header>
+    <button onclick="sbtn()" aria-label="Pesquisar"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1e61a4" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button></div>
+<button id="adminBtn" class="mono admbtn" onclick="go('admin')" hidden>Admin</button><button class="burger" id="burger" onclick="$('mmenu').classList.toggle('open')" aria-label="Menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e61a4" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div></header>
+<div class="mmenu" id="mmenu"></div>
 <div class="ticks" id="ticks"></div>
 
 <div id="home">
   <section class="hero"><div class="wrap">
     <div>
       <span class="mono">Curadoria de áudio</span>
-      <h1>O som em estado de graça.</h1>
-      <p class="lead">Earphones, headphones, DACs, DAPs e caixas de som reunidos em cinco famílias. Cada aparelho tem foto, nome e um link direto para a loja.</p>
+      <h1>Sua próxima experiência sonora começa aqui.</h1>
+      <p class="lead">Sua próxima experiência sonora começa aqui. Encontre o equipamento ideal para transformar cada nota em uma experiência única.</p>
       <div class="btns">
       <button class="ghost mono" onclick="go('catalog')">Ver o catálogo ↗</button></div>
     </div>
@@ -280,7 +306,7 @@ function card(p){
 const fill=(el,l)=>{el.innerHTML=l.length?l.map(card).join(""):'<p class="empty">Nenhum produto encontrado.</p>'};
 /* ---------- navegação ---------- */
 function go(v,arg){
-  CUR={v,arg};
+  CUR={v,arg};$("mmenu").classList.remove("open");
   $("ticks").style.display=v==="home"?"":"none";
   $("home").style.display=v==="home"?"block":"none";
   $("catview").style.display=(v==="cat"||v==="search"||v==="catalog")?"block":"none";
@@ -291,7 +317,7 @@ function go(v,arg){
     const c=v==="cat"?arg:"";
     $("cnum").textContent=c?num(c):"";$("ctitle").textContent=c?CATS[c].n:"Catálogo completo";
     $("cdesc").textContent=c?CATS[c].d:"Todos os produtos da loja, com filtros.";
-    OPEN={};resetF(c);drawSide();drawGrid();
+    OPEN={};resetF(c);drawSide();drawGrid();const mob=matchMedia("(max-width:860px)").matches;$("clayout").classList.toggle("fclosed",mob);$("ftog").textContent=mob?"Mostrar filtros":"Ocultar filtros";
   }
   if(v==="search"){
     $("cfilters").innerHTML="";$("ccount2").textContent="";$("cnum").textContent="";$("ctitle").textContent="Resultados";$("cdesc").textContent="Busca por “"+arg+"”";
@@ -303,7 +329,9 @@ function go(v,arg){
 }
 function togF(){const c=$("clayout").classList.toggle("fclosed");$("ftog").textContent=c?"Mostrar filtros":"Ocultar filtros"}
 function goSec(k){if($("home").style.display==="none")go("home");setTimeout(()=>{const e=$("sec-"+k);if(e)scrollTo({top:e.getBoundingClientRect().top+scrollY-80,behavior:"smooth"})},30)}
-function doSearch(){const q=$("q").value.trim();if(q)go("search",q)}
+function doSearch(){const q=$("q").value.trim();if(q){go("search",q);document.querySelector(".search").classList.remove("open")}}
+function sbtn(){const s=document.querySelector(".search");if(matchMedia("(max-width:860px)").matches&&!s.classList.contains("open")){s.classList.add("open");$("q").focus();return}doSearch()}
+$("q").addEventListener("blur",()=>setTimeout(()=>{if(!$("q").value.trim())document.querySelector(".search").classList.remove("open")},200));
 /* ---------- filtros (lateral esquerda, seleção múltipla) ---------- */
 const scopeOf=c=>c?PRODUCTS.filter(p=>p.cat===c):PRODUCTS;
 const schema=c=>c?FLD[c]:[["cat","Tipo",keys.map(k=>[k,CATS[k].n])],SIGF,["design","Design de construção",O(["Intra-auricular","Semi-auricular","Open-ear","Over-Ear","On-Ear"])]];
@@ -355,6 +383,7 @@ function sa(v){selA=v;renderGuide()}
 /* ---------- página inicial ---------- */
 function renderHome(){$("cats").innerHTML=keys.map(k=>`<div class="csec" id="sec-${k}"><div class="hd"><span class="mono">${num(k)}</span><h3>${CATS[k].n}</h3><button class="all mono" onclick="go('cat','${k}')">Ver todos ↗</button></div><div class="grid">${PRODUCTS.filter(p=>p.cat===k).slice(0,3).map(card).join("")}</div></div>`).join("")}
 $("nav").innerHTML=keys.map(k=>`<button onclick="go('cat','${k}')">${CATS[k].n}</button>`).join("");
+$("mmenu").innerHTML=keys.map(k=>`<button onclick="go('cat','${k}')">${CATS[k].n}</button>`).join("")+`<button onclick="go('catalog')">Catálogo completo</button><button onclick="go('guide')">Escolher meu fone ideal</button>`;
 $("ticks").innerHTML=keys.map(k=>`<i data-t="${CATS[k].n}" onclick="goSec('${k}')"></i>`).join("");
 /* ---------- BANCO DE DADOS (Supabase) + painel do administrador ---------- */
 const cleanUrl=u=>{u=String(u||"").trim();const m=u.match(/dashboard\/project\/([a-z0-9]+)/i);return m?"https://"+m[1]+".supabase.co":u.replace(/\/(rest|auth)\/v1.*$/,"").replace(/\/+$/,"")};
