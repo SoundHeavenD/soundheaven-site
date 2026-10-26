@@ -255,6 +255,35 @@ button:active{transform:scale(.97)}
 .down{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--mute);opacity:.65;animation:nudge 2.6s ease-in-out infinite;transition:opacity .3s,color .3s}
 @keyframes nudge{50%{transform:translateX(-50%) translateY(6px)}}
 @media(hover:hover){.down:hover{opacity:1;color:var(--blue)}}
+/* ---- admin: características múltiplas, resumo e aviso de nome ---- */
+.ach{display:flex;flex-direction:column;gap:8px}
+.chips2{display:flex;flex-wrap:wrap;gap:8px}
+.chips2 .chip{padding:7px 14px;font-size:.88rem}
+.addx{display:flex;gap:10px;align-items:center}
+.addx input{max-width:220px}
+.addx button{color:var(--blue);text-decoration:underline}
+.asum{background:var(--blue);color:#fff;border-radius:14px;padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px}
+.asum .sg{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px}
+.asum em{font-style:normal;background:rgba(255,255,255,.2);border-radius:10px;padding:3px 10px}
+.asum .none{opacity:.75;font-size:.9rem}
+.adup{background:var(--blob);border-left:4px solid var(--blue);border-radius:10px;padding:12px 16px;line-height:1.8}
+.adup em{font-style:normal;font-weight:600;margin:0 6px}
+.adup button{margin-left:10px;color:var(--blue);text-decoration:underline}
+/* ---- números em fonte limpa ---- */
+.n,.card .row span,#pv,#ccount2,.hd .mono,#cnum,.panel .mono{font-family:"Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none}
+.n{font-weight:500}
+.hd .mono,#cnum{font-size:.95rem;letter-spacing:.06em}
+/* ---- botões do cabeçalho: catálogo e ajude-me ---- */
+.help{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:22px;background:var(--blue);color:#fff;font-size:.78rem;font-weight:500;margin-right:10px;white-space:nowrap;transition:transform .25s,box-shadow .25s}
+.help svg,.catic{display:none}
+@media(hover:hover){.help:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(24,54,86,.25)}}
+@media(max-width:860px){
+ .help{padding:0;width:40px;height:40px;background:none;color:var(--blue);justify-content:center;margin:0}
+ .help span{display:none}.help svg{display:block}
+ .catic{display:flex;width:40px;height:40px;align-items:center;justify-content:center;color:var(--blue)}
+ header.searching .hbtn{display:none}
+}
+@media(max-width:1280px){nav{gap:14px}nav button{letter-spacing:.1em;font-size:.64rem}.help{padding:8px 12px;margin-right:4px}}
 </style></head>
 <body>
 <header><div class="wrap">
@@ -262,6 +291,8 @@ button:active{transform:scale(.97)}
   <nav id="nav"></nav>
   <img class="logo" data-logo alt="SoundHeaven" onclick="go('home')">
   <div class="hr">
+    <button class="catic hbtn" onclick="go('catalog')" aria-label="Catálogo completo" title="Catálogo completo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></button>
+    <button class="help hbtn" onclick="go('guide')" aria-label="Ajude-me a escolher o fone ideal" title="Ajude-me a escolher o fone ideal"><span>Ajude-me a escolher</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4.5" height="6.5" rx="2"/><rect x="16.5" y="14" width="4.5" height="6.5" rx="2"/></svg></button>
     <div class="search"><input id="q" placeholder="Pesquisar" onkeydown="if(event.key==='Enter')doSearch()">
       <button onclick="sbtn()" aria-label="Pesquisar"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button></div>
     <button id="adminBtn" class="mono admbtn" onclick="go('admin')" hidden>Admin</button>
@@ -374,25 +405,32 @@ const GENRES={};Object.entries(SIGGEN).forEach(([k,g])=>g.forEach(x=>(GENRES[x]=
 const GL=Object.keys(GENRES);
 /* FILTROS POR CATEGORIA: [campo, rótulo, [[valor,texto],...]] — "Marca" e preço são automáticos */
 const O=a=>a.map(x=>[x,x]), SIGO=Object.keys(SIGS).map(k=>[k,SIGS[k].n]), ANC=O(["Ativo","Passivo"]), SIGF=["sig","Assinatura sonora/Tunning",SIGO], ANCF=["anc","Cancelamento de ruído",ANC];
+const MICF=["microfone","Microfone",O(["Com microfone","Sem microfone"])];
 const FLD={
- earphones:[["conexao","Conexão",O(["Bluetooth","Cabeado DSP","Cabeado P2/P3"])],["design","Design de construção",O(["Intra-auricular","Semi-auricular","Open-ear"])],ANCF,SIGF],
- headphones:[["conexao","Conexão",O(["Bluetooth","Cabeado","Dongle"])],["design","Design de construção",O(["Over-Ear","On-Ear"])],["formato","Formato acústico",O(["Aberto","Fechado"])],ANCF,SIGF],
+ earphones:[["conexao","Conexão",O(["Bluetooth","Cabeado DSP","Cabeado P2/P3"])],["design","Design de construção",O(["Intra-auricular","Semi-auricular","Open-ear"])],ANCF,MICF,SIGF],
+ headphones:[["conexao","Conexão",O(["Bluetooth","Cabeado","Dongle"])],["design","Design de construção",O(["Over-Ear","On-Ear"])],["formato","Formato acústico",O(["Aberto","Fechado"])],ANCF,MICF,SIGF],
  dacs:[["tipo","Tipo de formato",O(["Dongles","DACs de mesa"])],["amp","Amplificador integrado",O(["Sim","Não"])]],
  daps:[],
  caixas:[["tamanho","Tamanho",O(["Nearfield","Mid-Size","Torre"])]]
 };
 const keys=Object.keys(CATS), num=k=>String(keys.indexOf(k)+1).padStart(2,"0");
+const vals=(p,f)=>String(p[f]??"").split("|").map(x=>x.trim()).filter(Boolean);
 const price=p=>parseFloat(String(p.preco||"").replace(/[^\d,]/g,"").replace(",","."))||0;
 const brl=n=>"R$ "+Number(n).toLocaleString("pt-BR");
 const pic=(img,t)=>img?`<img src="${esc(img)}" alt="">`:t;
 function card(p){
-  const tag=(p.sig&&SIGS[p.sig]?`<span class="tag lk" data-lk data-f="sig" data-v="${p.sig}">${SIGS[p.sig].n}</span>`:"")+(p.design?` <span class="tag lk" data-lk data-f="design" data-v="${esc(p.design)}">${esc(p.design)}</span>`:"");
+  const tag=vals(p,"sig").filter(x=>SIGS[x]).map(x=>`<span class="tag lk" data-lk data-f="sig" data-v="${x}">${SIGS[x].n}</span>`).join(" ")+" "+vals(p,"design").map(x=>`<span class="tag lk" data-lk data-f="design" data-v="${esc(x)}">${esc(x)}</span>`).join(" ");
   return `<a class="card" href="${esc(p.link||'#')}"><div class="box"><div class="im">${pic(p.img,"foto do produto")}</div><div class="go"><span>IR PARA A LOJA</span><span>↗</span></div></div>
-  <div class="row"><b style="font-weight:500">${esc(p.nome)}</b><span>${esc(p.preco||"")}</span></div><div class="mono br">${p.marca?`<span class="lk" data-lk data-f="marca" data-v="${esc(p.marca)}">${esc(p.marca)}</span>`:""}</div><p class="d">${esc(p.desc||"")}</p>${tag}</a>`;
+  <div class="row"><b style="font-weight:500">${dg(p.nome)}</b><span>${esc(p.preco||"")}</span></div><div class="mono br">${p.marca?`<span class="lk" data-lk data-f="marca" data-v="${esc(p.marca)}">${esc(p.marca)}</span>`:""}</div><p class="d">${esc(p.desc||"")}</p>${tag}</a>`;
 }
+const dg=t=>esc(t).replace(/\d+(?:[.,]\d+)?/g,'<span class="n">$&</span>');
 const fill=(el,l)=>{el.innerHTML=l.length?l.map(card).join(""):'<p class="empty">Nenhum produto encontrado.</p>'};
 /* ---------- navegação ---------- */
-function go(v,arg){
+let INNER=false;
+window.addEventListener("popstate",()=>{INNER=false;go("home",undefined,true)});
+function go(v,arg,pop){
+  if(v==="home"&&INNER&&!pop){history.back();return}
+  if(v!=="home"){if(!INNER){history.pushState({i:1},"");INNER=true}else history.replaceState({i:1},"")}else INNER=false;
   CUR={v,arg};$("mmenu").classList.remove("open");document.body.classList.toggle("sbar",v==="cat"||v==="catalog");
   $("ticks").style.display=v==="home"?"":"none";
   $("home").style.display=v==="home"?"block":"none";
@@ -429,7 +467,9 @@ function goVal(f,v){
 document.addEventListener("click",e=>{const t=e.target.closest("[data-lk]");if(!t)return;e.preventDefault();e.stopPropagation();goVal(t.dataset.f,t.dataset.v)},true);
 /* ---------- filtros (lateral esquerda, seleção múltipla) ---------- */
 const scopeOf=c=>c?PRODUCTS.filter(p=>p.cat===c):PRODUCTS;
-const schema=c=>c?FLD[c]:[["cat","Tipo",keys.map(k=>[k,CATS[k].n])],SIGF,["design","Design de construção",O(["Intra-auricular","Semi-auricular","Open-ear","Over-Ear","On-Ear"])]];
+const ALLFLD=(()=>{const m=new Map();keys.forEach(k=>FLD[k].forEach(([f,l,o])=>{if(!m.has(f))m.set(f,[f,l,[]]);const e=m.get(f)[2];o.forEach(x=>{if(!e.some(y=>y[0]===x[0]))e.push(x)})}));return[...m.values()]})();
+const schema=c=>c?FLD[c]:[["cat","Tipo",keys.map(k=>[k,CATS[k].n])],...ALLFLD];
+function withExtra(f,o,sc){if(f==="sig"||f==="cat")return o;const ex=[...new Set(sc.flatMap(p=>vals(p,f)))].filter(x=>!o.some(y=>y[0]===x)).sort((a,b)=>a.localeCompare(b,"pt"));return o.concat(ex.map(x=>[x,x]))}
 function resetF(c){S={};BM=false;PR=[null,null];ORD="";CURC=c}
 function drawSide(){
   const sc=scopeOf(CURC),ps=sc.map(price);
@@ -437,7 +477,7 @@ function drawSide(){
   const brands=[...new Set(sc.map(p=>p.marca).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt"));
   const shown=BM?brands:brands.filter((b,i)=>i<10||(S.marca||[]).includes(b));
   const grp=(f,l,o)=>`<details class="fg" data-g="${f}" ${OPEN[f]?"open":""}><summary class="mono">${l}</summary><label><input type="checkbox" data-f="${f}" data-all ${S[f]?"":"checked"}> Todos</label>${o.map(([v,t])=>`<label><input type="checkbox" data-f="${f}" data-v="${esc(v)}" ${(S[f]||[]).includes(v)?"checked":""}> ${esc(t)}</label>`).join("")}</details>`;
-  let h=`<div class="fhead"><b class="mono">Filtros</b><button class="mono" onclick="togF()">Fechar ×</button></div>`+schema(CURC).map(([f,l,o])=>grp(f,l,o)).join("");
+  let h=`<div class="fhead"><b class="mono">Filtros</b><button class="mono" onclick="togF()">Fechar ×</button></div>`+schema(CURC).map(([f,l,o])=>grp(f,l,withExtra(f,o,sc))).join("");
   if(brands.length)h+=grp("marca","Marca",shown.map(b=>[b,b]))+(brands.length>10?`<button class="more mono" onclick="BM=!BM;drawSide()">${BM?"Mostrar menos":"Mostrar mais"}</button>`:"");
   h+=`<details class="fg" data-g="ord" ${OPEN.ord?"open":""}><summary class="mono">Ordenar por preço</summary><select onchange="ORD=this.value;drawGrid()"><option value="">Padrão</option><option value="asc" ${ORD==="asc"?"selected":""}>Menor preço</option><option value="desc" ${ORD==="desc"?"selected":""}>Maior preço</option></select></details>`;
   if(BND[1]>BND[0])h+=`<details class="fg" data-g="preco" ${OPEN.preco?"open":""}><summary class="mono">Faixa de preço</summary><div id="pv"></div><input type="range" id="pr0" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(0,this.value)"><input type="range" id="pr1" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(1,this.value)"></details>`;
@@ -448,7 +488,7 @@ function pv(){if(!$("pr0"))return;const a=PR[0]??BND[0],b=PR[1]??BND[1];$("pr0")
 function setP(i,v){v=+v;const a=PR[0]??BND[0],b=PR[1]??BND[1];PR=i?[PR[0],Math.max(v,a)]:[Math.min(v,b),PR[1]];pv();drawGrid()}
 function drawGrid(){
   const a=PR[0]??-1,b=PR[1]??1e12;
-  const l=scopeOf(CURC).filter(p=>Object.entries(S).every(([f,v])=>v.includes(p[f]))&&price(p)>=a&&price(p)<=b);
+  const l=scopeOf(CURC).filter(p=>Object.entries(S).every(([f,v])=>v.some(x=>vals(p,f).includes(x)))&&price(p)>=a&&price(p)<=b);
   if(ORD)l.sort((x,y)=>ORD==="asc"?price(x)-price(y):price(y)-price(x));
   $("ccount2").textContent=l.length+" produto"+(l.length===1?"":"s");
   fill($("pgrid"),l);
@@ -473,7 +513,7 @@ function renderGuide(){
   row("cons",[["","Todos"],["bt","Bluetooth"],["cab","Cabeado"]],selC,"sc");
   row("tipos",[["","Todos"],["earphones","Earphone"],["headphones","Headphone"]],selT,"st");
   $("gtitle").textContent=selS?SIGS[selS].n:"Fones recomendados para você";
-  fill($("ggrid"),PRODUCTS.filter(p=>(p.cat==="earphones"||p.cat==="headphones")&&(!selT||p.cat===selT)&&(selS?p.sig===selS:ok.includes(p.sig))&&(selA===""||(selA==="sim")===(p.anc==="Ativo"))&&(selC===""||(selC==="bt"?p.conexao==="Bluetooth":/^(Cabeado|Dongle)/.test(p.conexao||"")))));
+  fill($("ggrid"),PRODUCTS.filter(p=>(p.cat==="earphones"||p.cat==="headphones")&&(!selT||p.cat===selT)&&(selS?vals(p,"sig").includes(selS):vals(p,"sig").some(x=>ok.includes(x)))&&(selA===""||(selA==="sim")===vals(p,"anc").includes("Ativo"))&&(selC===""||vals(p,"conexao").some(x=>selC==="bt"?x==="Bluetooth":/^(Cabeado|Dongle)/.test(x)))));
 }
 function tg(i){const g=GL[i];selG.has(g)?selG.delete(g):selG.add(g);renderGuide()}
 function ps(k){selS=selS===k?null:k;renderGuide()}
@@ -482,7 +522,7 @@ function sc(v){selC=v;renderGuide()}
 function st(v){selT=v;renderGuide()}
 /* ---------- página inicial ---------- */
 function renderHome(){$("cats").innerHTML=keys.map(k=>`<div class="csec" id="sec-${k}"><div class="hd"><span class="mono">${num(k)}</span><h3>${CATS[k].n}</h3><button class="all mono" onclick="go('cat','${k}')">Ver todos ↗</button></div><div class="grid">${PRODUCTS.filter(p=>p.cat===k).slice(0,3).map(card).join("")}</div></div>`).join("");revealInit()}
-$("nav").innerHTML=keys.map(k=>`<button onclick="go('cat','${k}')">${CATS[k].n}</button>`).join("");
+$("nav").innerHTML=keys.map(k=>`<button onclick="go('cat','${k}')">${CATS[k].n}</button>`).join("")+`<button onclick="go('catalog')">Catálogo</button>`;
 $("mmenu").innerHTML=keys.map(k=>`<button onclick="go('cat','${k}')">${CATS[k].n}</button>`).join("")+`<button onclick="go('catalog')">Catálogo completo</button><button onclick="go('guide')">Escolher meu fone ideal</button>`;
 $("ticks").innerHTML=keys.map(k=>`<i data-t="${CATS[k].n}" onclick="goSec('${k}')"></i>`).join("");
 /* ---------- BANCO DE DADOS (Supabase) + painel do administrador ---------- */
@@ -494,7 +534,7 @@ function why(){
   if(!/^https:\/\/[^\/]+$/.test(cleanUrl(window.SB_URL)))return "A URL no config.js está incorreta (deve ser algo como https://xxxx.supabase.co).";
   return "A chave no config.js está vazia ou incompleta: copie de novo a chave pública do Supabase.";
 }
-const ALLF=["conexao","design","formato","anc","sig","tipo","amp","tamanho"];
+const ALLF=["conexao","design","formato","anc","microfone","sig","tipo","amp","tamanho"];
 function rebuild(){PRODUCTS=SB?DBP:BASE;renderHome();
   if(CUR.v==="admin")adminList();else if(CUR.v==="cat"||CUR.v==="catalog"){drawSide();drawGrid()}else if(CUR.v==="guide")renderGuide()}
 async function load(){
@@ -502,19 +542,39 @@ async function load(){
   if(error){console.error(error);return}
   DBP=data.map(r=>({...r,desc:r.descricao||"",_id:r.id}));rebuild();
 }
+let SEL={},FORCE=false;
+const norm=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+const tset=t=>norm(t).split(" ").sort().join(" ");
+function lev(a,b){const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
+function similar(name){const a=norm(name);if(!a)return[];
+  return PRODUCTS.filter(p=>{if(p._id&&p._id===EDIT)return false;const b=norm(p.nome);if(!b)return false;
+    return a===b||tset(name)===tset(p.nome)||(Math.min(a.length,b.length)>=4&&(a.includes(b)||b.includes(a)))||lev(a,b)/Math.max(a.length,b.length)<=.25})}
+function dupHint(ask){if(!ask)FORCE=false;const l=similar(V("nome")),b=$("a_dup");if(!l.length){b.hidden=true;return}
+  b.hidden=false;b.innerHTML=`<b class="mono">Atenção</b> Já existe produto com nome igual ou parecido:${l.slice(0,4).map(p=>`<em>${esc(p.nome)}</em>`).join("")}`+(ask?`<button class="mono" onclick="FORCE=true;saveItem()">Adicionar mesmo assim</button><button class="mono" onclick="$('a_nome').focus()">Mudar o nome</button>`:" Você ainda poderá adicionar.")}
+function addX(f){const i=$("x_"+f),v=i.value.trim();if(!v)return;const a=SEL[f]||(SEL[f]=[]);if(!a.includes(v))a.push(v);dyn()}
+function sum(){const F=FLD[A("cat").value]||[];
+  const ps=F.filter(([f])=>(SEL[f]||[]).length).map(([f,l,o])=>`<span class="sg"><b>${l}:</b>${SEL[f].map(v=>`<em>${esc((o.find(y=>y[0]===v)||[,v])[1])}</em>`).join("")}</span>`);
+  $("a_sum").innerHTML=`<b class="mono">Filtros marcados</b>`+(ps.length?ps.join(""):`<span class="none">nenhum ainda</span>`)}
+$("aform").addEventListener("click",e=>{const b=e.target.closest("[data-xv]");if(!b)return;const f=b.dataset.xf,v=b.dataset.xv,a=SEL[f]||(SEL[f]=[]),i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);if(!a.length)delete SEL[f];dyn()});
 const A=id=>$("a_"+id),V=id=>A(id).value.trim(),TXT=["nome","marca","preco","link","img","desc"];
 const msg=t=>{LAST=t;$("a_msg").textContent=t;const m=$("a_msg2");if(m)m.textContent=t};
-function dyn(){const c=A("cat").value;$("a_dyn").innerHTML=(FLD[c]||[]).map(([f,l,o])=>`<label class="mono">${l}<select id="a_${f}"><option value="">—</option>${o.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("")}</select></label>`).join("")}
+function dyn(){
+  const c=A("cat").value,F=FLD[c]||[];
+  $("a_dyn").innerHTML=F.map(([f,l,o])=>{
+    const ex=(SEL[f]||[]).filter(x=>!o.some(y=>y[0]===x)),all=o.concat(ex.map(x=>[x,x]));
+    return `<div class="full ach"><b class="mono">${l}</b><div class="chips2">${all.map(([v,t])=>`<button type="button" class="chip ${(SEL[f]||[]).includes(v)?"on":""}" data-xf="${f}" data-xv="${esc(v)}">${esc(t)}</button>`).join("")}</div>${f==="sig"?"":`<span class="addx"><input id="x_${f}" placeholder="Outra opção..." onkeydown="if(event.key==='Enter'){event.preventDefault();addX('${f}')}"><button type="button" class="mono" onclick="addX('${f}')">+ adicionar</button></span>`}</div>`}).join("")+`<div class="full asum" id="a_sum"></div>`;
+  sum();
+}
 function buildForm(){
-  const inp=(id,l,ph)=>`<label class="mono">${l}<input id="a_${id}" placeholder="${ph||""}"></label>`;
-  $("aform").innerHTML=inp("nome","Nome")+inp("marca","Marca")+inp("preco","Preço","R$ 1.290")+
-  `<label class="mono">Categoria<select id="a_cat" onchange="dyn()">${keys.map(k=>`<option value="${k}">${CATS[k].n}</option>`).join("")}</select></label><div class="dyn" id="a_dyn"></div>`+
+  const inp=(id,l,ph,ex)=>`<label class="mono">${l}<input id="a_${id}" placeholder="${ph||""}" ${ex||""}></label>`;
+  $("aform").innerHTML=inp("nome","Nome","","oninput=\"dupHint()\"")+inp("marca","Marca")+inp("preco","Preço","R$ 1.290")+`<div class="full adup" id="a_dup" hidden></div>`+
+  `<label class="mono">Categoria<select id="a_cat" onchange="SEL={};dyn()">${keys.map(k=>`<option value="${k}">${CATS[k].n}</option>`).join("")}</select></label><div class="dyn" id="a_dyn"></div>`+
   inp("link","Link da loja","https://")+inp("img","Link da imagem","https://")+
   `<label class="mono">Ou envie uma foto<input type="file" id="a_file" accept="image/*" onchange="upImg(this)"></label><label class="mono full">Descrição<textarea id="a_desc" rows="2"></textarea></label>`+
   `<div class="full"><button class="big sm" id="a_save" onclick="saveItem()">Adicionar item</button> <button class="ghost mono" onclick="resetForm()">Limpar</button> <span class="note" id="a_msg"></span></div>`;
   dyn();
 }
-function resetForm(){EDIT=null;TXT.forEach(i=>A(i).value="");A("cat").value=keys[0];dyn();A("file").value="";A("save").textContent="Adicionar item"}
+function resetForm(){EDIT=null;SEL={};FORCE=false;TXT.forEach(i=>A(i).value="");A("cat").value=keys[0];dyn();$("a_dup").hidden=true;A("file").value="";A("save").textContent="Adicionar item"}
 async function upImg(el){const f=el.files[0];if(!f)return;msg("Enviando foto...");
   const ext=(f.name.split(".").pop()||"jpg").toLowerCase(),path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
   const {error}=await SB.storage.from("produtos").upload(path,f,{contentType:f.type});
@@ -522,16 +582,17 @@ async function upImg(el){const f=el.files[0];if(!f)return;msg("Enviando foto..."
   A("img").value=SB.storage.from("produtos").getPublicUrl(path).data.publicUrl;msg("Foto enviada.")}
 async function saveItem(){
   if(!V("nome")){msg("Preencha o nome.");return}
+  if(similar(V("nome")).length&&!FORCE){dupHint(true);msg("Já existe um produto parecido. Confirme na caixa de aviso para adicionar mesmo assim.");return}
   const ss=(await SB.auth.getSession()).data.session;if(!ss){msg("Sessão expirada: entre novamente.");setAdmin(false);return}
   const c=A("cat").value,row={nome:V("nome"),marca:V("marca"),preco:V("preco"),cat:c,link:V("link")||"#",img:V("img"),descricao:V("desc")};
-  ALLF.forEach(f=>row[f]=null);(FLD[c]||[]).forEach(([f])=>{row[f]=A(f).value||null});
+  ALLF.forEach(f=>row[f]=null);(FLD[c]||[]).forEach(([f])=>{row[f]=(SEL[f]||[]).join("|")||null});
   const q=EDIT?SB.from("products").update(row).eq("id",EDIT).select():SB.from("products").insert(row).select();
   const {data,error}=await q;
-  if(error){msg("Erro ao salvar: "+error.message);return}
+  if(error){msg(/microfone/i.test(error.message)?"Falta atualizar o banco: rode no Supabase o arquivo supabase-atualizacao-microfone.sql.":"Erro ao salvar: "+error.message);return}
   if(!data||!data.length){msg("O banco recusou a gravação: o e-mail desta conta não é o cadastrado como dono no SQL.");return}
   const ed=EDIT;resetForm();msg(ed?"Item atualizado.":"Item adicionado.");load();
 }
-function editItem(id){const p=DBP.find(x=>x._id===id);if(!p)return;EDIT=id;TXT.forEach(i=>A(i).value=p[i]||"");A("cat").value=p.cat;dyn();(FLD[p.cat]||[]).forEach(([f])=>A(f).value=p[f]||"");A("save").textContent="Salvar alterações";scrollTo(0,0)}
+function editItem(id){const p=DBP.find(x=>x._id===id);if(!p)return;EDIT=id;TXT.forEach(i=>A(i).value=p[i]||"");A("cat").value=p.cat;SEL={};(FLD[p.cat]||[]).forEach(([f])=>{const v=vals(p,f);if(v.length)SEL[f]=v});dyn();dupHint();A("save").textContent="Salvar alterações";scrollTo(0,0)}
 function askDel(id){DELQ=id;adminList()}
 async function delItem(id){DELQ=null;const {data,error}=await SB.from("products").delete().eq("id",id).select();
   msg(error?"Erro ao excluir: "+error.message:!data||!data.length?"O banco recusou: esta conta não é a de dono.":"Item excluído.");await load();adminList()}
