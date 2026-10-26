@@ -99,7 +99,7 @@ background:radial-gradient(ellipse 45% 55% at 100% 8%,var(--blob),transparent 70
 .card .go{position:absolute;left:0;right:0;bottom:0;background:var(--blue);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;transform:translateY(100%);transition:.25s;font-family:var(--mono);font-size:.7rem;letter-spacing:.2em}
 @media(hover:hover){.card:hover .go{transform:none}}
 .card .row{display:flex;justify-content:space-between;gap:10px;margin-top:16px;font-family:var(--head);font-size:1.1rem}
-.card .row span{font-family:var(--mono);font-size:.85rem;color:var(--mute)}
+.card .row>span{font-family:var(--mono);font-size:.85rem;color:var(--mute)}
 .card .br{margin-top:8px}
 .card .d{color:var(--mute);font-size:.92rem;line-height:1.5;margin-top:12px}
 .tag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:12px;background:var(--blob)}
@@ -270,7 +270,7 @@ button:active{transform:scale(.97)}
 .adup em{font-style:normal;font-weight:600;margin:0 6px}
 .adup button{margin-left:10px;color:var(--blue);text-decoration:underline}
 /* ---- números em fonte limpa ---- */
-.n,.card .row span,#pv,#ccount2,.hd .mono,#cnum,.panel .mono{font-family:"Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none}
+.n,.card .row>span,#pv,#ccount2,.hd .mono,#cnum,.panel .mono{font-family:"Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:0;text-transform:none}
 .n{font-weight:500}
 .hd .mono,#cnum{font-size:.95rem;letter-spacing:.06em}
 /* ---- botão do cabeçalho (só fora da página inicial) ---- */
@@ -291,6 +291,13 @@ nav button.on::after{transform:scaleX(1)}
 #pbar.run{animation:pbar .7s ease-out}
 @keyframes pbar{0%{transform:scaleX(0);opacity:1}70%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
 .mmenu .big{display:block;width:calc(100% - 40px);margin:16px 20px 10px;padding:26px 20px;font-size:1.25rem;line-height:1.2;font-family:var(--head);font-weight:500;text-align:center;border-bottom:0;box-shadow:0 12px 32px rgba(24,54,86,.3),0 0 0 8px rgba(207,216,221,.85)}
+/* ---- números iguais ao texto ao redor; preço e ordenar sempre abertos ---- */
+.n{font-size:inherit!important;color:inherit!important;font-weight:inherit;letter-spacing:0}
+.fg.fs>b{display:block}
+/* ---- anúncios: nome, marca, etiquetas e preço na mesma fonte limpa ---- */
+.card .row b{font-family:"Inter",system-ui,sans-serif;font-weight:500;font-size:1.02rem;letter-spacing:-.005em}
+.card .br,.card .tag{font-family:"Inter",system-ui,sans-serif;font-weight:500}
+.card .row>span{font-family:"Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums}
 </style></head>
 <body>
 <header><div class="wrap">
@@ -355,6 +362,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let ADMIN=false,HIDE=false,DBP=[],EDIT=null,DB=null,DELQ=null,LAST="",CUR={v:"home"};
 let OPEN={},S={},BM=false,PR=[null,null],ORD="",CURC="",BND=[0,0];
+let GCNT={};
 let selG=new Set(),selS=null,selA="",selC="",selT="";
 const IO=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");IO.unobserve(x.target)}}),{threshold:.06}):null;
 function revealInit(){if(!IO)return;document.querySelectorAll(".csec").forEach(e=>{e.classList.add("rv");IO.observe(e)})}
@@ -392,7 +400,7 @@ const CATS={
  caixas:{n:"Caixas de som",d:"São dispositivos que projetam o áudio no ambiente para ser ouvido por várias pessoas ao mesmo tempo, oferecendo potência e preenchimento sonoro para qualquer espaço."}
 };
 const SIGS={
- neutro:{n:"Neutro",d:"Busca a máxima fidelidade à gravação original sem alterar o som, mantendo graves, médios e agudos equilibrados para que os instrumentos soem totalmente naturais."},
+ neutro:{n:"Natural",d:"Busca a máxima fidelidade à gravação original sem alterar o som, mantendo graves, médios e agudos equilibrados para que os instrumentos soem totalmente naturais."},
  frio:{n:"Frio",d:"Prioriza a clareza extrema e a revelação de micro detalhes nas frequências mais altas, criando uma sensação de som aberto e cristalino, embora possa soar metálico para quem é sensível a agudos."},
  quente:{n:"Quente",d:"Oferece uma sonoridade macia, encorpada e aveludada, enfatizando os graves médios e suavizando os agudos para garantir uma audição extremamente confortável."},
  energetico:{n:"Energético",d:"Entrega uma resposta sonora veloz, frontal e cheia de atitude, destacando vocais e instrumentos de ataque com um nível de presença."},
@@ -410,12 +418,12 @@ const SIGGEN={
 const GENRES={};Object.entries(SIGGEN).forEach(([k,g])=>g.forEach(x=>(GENRES[x]=GENRES[x]||[]).push(k)));
 const GL=Object.keys(GENRES);
 /* FILTROS POR CATEGORIA: [campo, rótulo, [[valor,texto],...]] — "Marca" e preço são automáticos */
-const O=a=>a.map(x=>[x,x]), SIGO=Object.keys(SIGS).map(k=>[k,SIGS[k].n]), ANC=O(["Ativo","Passivo"]), SIGF=["sig","Assinatura sonora/Tunning",SIGO], ANCF=["anc","Cancelamento de ruído",ANC];
+const O=a=>a.map(x=>[x,x]), SIGO=Object.keys(SIGS).map(k=>[k,SIGS[k].n]), ANC=O(["Ativo","Passivo"]), SIGF=["sig","Assinatura sonora/Tuning",SIGO], ANCF=["anc","Cancelamento de ruído",ANC];
 const MICF=["microfone","Microfone",O(["Com microfone","Sem microfone"])];
 const FLD={
- earphones:[["conexao","Conexão",O(["Bluetooth","Cabeado DSP","Cabeado P2/P3"])],SIGF,ANCF,MICF,["design","Design de construção",O(["Intra-auricular","Semi-auricular","Open-ear"])]],
- headphones:[["conexao","Conexão",O(["Bluetooth","Cabeado","Dongle"])],SIGF,["formato","Formato acústico",O(["Aberto","Fechado"])],ANCF,MICF,["design","Design de construção",O(["Over-Ear","On-Ear"])]],
- dacs:[["tipo","Tipo de formato",O(["Dongles","DACs de mesa"])],["amp","Amplificador integrado",O(["Sim","Não"])]],
+ earphones:[["design","Design de construção",O(["Intra-auricular","Semi-auricular","Open-ear"])],["conexao","Conexão",O(["Bluetooth","Cabeado DSP","Cabeado P2/P3"])],MICF,ANCF,SIGF],
+ headphones:[["conexao","Conexão",O(["Bluetooth","Cabeado","Dongle"])],["design","Design de construção",O(["Over-Ear","On-Ear"])],MICF,ANCF,["formato","Formato acústico",O(["Aberto","Fechado"])],SIGF],
+ dacs:[["tipo","Formato",O(["Dongles","DACs de mesa"])],["circuito","Tipo do circuito",O(["Valvulado","Transistorizado"])],["amp","Amplificador integrado",O(["Sim","Não"])]],
  daps:[],
  caixas:[["tamanho","Tamanho",O(["Nearfield","Mid-Size","Torre"])]]
 };
@@ -427,7 +435,7 @@ const pic=(img,t)=>img?`<img src="${esc(img)}" alt="">`:t;
 function card(p){
   const tag=vals(p,"sig").filter(x=>SIGS[x]).map(x=>`<span class="tag lk" data-lk data-f="sig" data-v="${x}">${SIGS[x].n}</span>`).join(" ")+" "+vals(p,"design").map(x=>`<span class="tag lk" data-lk data-f="design" data-v="${esc(x)}">${esc(x)}</span>`).join(" ");
   return `<a class="card" href="${esc(p.link||'#')}"><div class="box"><div class="im">${pic(p.img,"foto do produto")}</div><div class="go"><span>IR PARA A LOJA</span><span>↗</span></div></div>
-  <div class="row"><b style="font-weight:500">${dg(p.nome)}</b><span>${esc(p.preco||"")}</span></div><div class="mono br">${p.marca?`<span class="lk" data-lk data-f="marca" data-v="${esc(p.marca)}">${esc(p.marca)}</span>`:""}</div><p class="d">${esc(p.desc||"")}</p>${tag}</a>`;
+  <div class="row"><b>${esc(p.nome)}</b><span>${esc(p.preco||"")}</span></div><div class="mono br">${p.marca?`<span class="lk" data-lk data-f="marca" data-v="${esc(p.marca)}">${esc(p.marca)}</span>`:""}</div><p class="d">${esc(p.desc||"")}</p>${tag}</a>`;
 }
 const dg=t=>esc(t).replace(/\d+(?:[.,]\d+)?/g,'<span class="n">$&</span>');
 const fill=(el,l)=>{el.innerHTML=l.length?l.map(card).join(""):'<p class="empty">Nenhum produto encontrado.</p>'};
@@ -469,27 +477,28 @@ function sbtn(){const s=document.querySelector(".search");if(matchMedia("(max-wi
 $("q").addEventListener("blur",()=>setTimeout(()=>{if(!$("q").value.trim())sOpen(false)},200));
 function goVal(f,v){
   go("catalog");S={};S[f]=[v];OPEN={};OPEN[f]=true;
-  $("ctitle").textContent=({marca:"Marca",sig:"Assinatura sonora",design:"Design de construção"}[f]||f)+": "+(f==="sig"&&SIGS[v]?SIGS[v].n:v);
+  $("ctitle").innerHTML=dg(({marca:"Marca",sig:"Assinatura sonora",design:"Design de construção"}[f]||f)+": "+(f==="sig"&&SIGS[v]?SIGS[v].n:v));
   $("cdesc").textContent="Todos os produtos com este filtro.";drawSide();drawGrid();
 }
 document.addEventListener("click",e=>{const t=e.target.closest("[data-lk]");if(!t)return;e.preventDefault();e.stopPropagation();goVal(t.dataset.f,t.dataset.v)},true);
 /* ---------- filtros (lateral esquerda, seleção múltipla) ---------- */
 const scopeOf=c=>c?PRODUCTS.filter(p=>p.cat===c):PRODUCTS;
-const RANK=["conexao","sig","formato","anc","microfone","design","tipo","amp","tamanho"];
+const RANK=["conexao","design","microfone","anc","formato","sig","tipo","circuito","amp","tamanho"];
 const ALLFLD=(()=>{const m=new Map();keys.forEach(k=>FLD[k].forEach(([f,l,o])=>{if(!m.has(f))m.set(f,[f,l,[]]);const e=m.get(f)[2];o.forEach(x=>{if(!e.some(y=>y[0]===x[0]))e.push(x)})}));return[...m.values()].sort((a,b)=>RANK.indexOf(a[0])-RANK.indexOf(b[0]))})();
 const schema=c=>c?FLD[c]:[["cat","Tipo",keys.map(k=>[k,CATS[k].n])],...ALLFLD];
-function withExtra(f,o,sc){if(f==="sig"||f==="cat")return o;const ex=[...new Set(sc.flatMap(p=>vals(p,f)))].filter(x=>!o.some(y=>y[0]===x)).sort((a,b)=>a.localeCompare(b,"pt"));return o.concat(ex.map(x=>[x,x]))}
+function withExtra(f,o,sc){if(f==="sig"||f==="cat")return o;const ex=[...new Set(sc.flatMap(p=>vals(p,f)))].filter(x=>!o.some(y=>y[0]===x)&&!(f==="conexao"&&CURC==="earphones"&&x==="Cabeado")).sort((a,b)=>a.localeCompare(b,"pt"));return o.concat(ex.map(x=>[x,x]))}
 function resetF(c){S={};BM=false;PR=[null,null];ORD="";CURC=c}
 function drawSide(){
   const sc=scopeOf(CURC),ps=sc.map(price);
   BND=ps.length?[Math.floor(Math.min(...ps)/10)*10,Math.ceil(Math.max(...ps)/10)*10]:[0,0];
   const brands=[...new Set(sc.map(p=>p.marca).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt"));
   const shown=BM?brands:brands.filter((b,i)=>i<10||(S.marca||[]).includes(b));
-  const grp=(f,l,o)=>`<details class="fg" data-g="${f}" ${OPEN[f]?"open":""}><summary class="mono">${l}</summary><label><input type="checkbox" data-f="${f}" data-all ${S[f]?"":"checked"}> Todos</label>${o.map(([v,t])=>`<label><input type="checkbox" data-f="${f}" data-v="${esc(v)}" ${(S[f]||[]).includes(v)?"checked":""}> ${esc(t)}</label>`).join("")}</details>`;
-  const pr=BND[1]>BND[0]?`<details class="fg" data-g="preco" ${OPEN.preco?"open":""}><summary class="mono">Faixa de preço</summary><div id="pv"></div><input type="range" id="pr0" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(0,this.value)"><input type="range" id="pr1" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(1,this.value)"></details>`:"";
-  const od=`<details class="fg" data-g="ord" ${OPEN.ord?"open":""}><summary class="mono">Ordenar por preço</summary><select onchange="ORD=this.value;drawGrid()"><option value="">Padrão</option><option value="asc" ${ORD==="asc"?"selected":""}>Menor preço</option><option value="desc" ${ORD==="desc"?"selected":""}>Maior preço</option></select></details>`;
+  const grp=(f,l,o)=>{GCNT[f]=o.length;return `<details class="fg" data-g="${f}" ${OPEN[f]?"open":""}><summary class="mono">${l}</summary>${o.map(([v,t])=>`<label><input type="checkbox" data-f="${f}" data-v="${esc(v)}" ${(S[f]||[]).includes(v)?"checked":""}><span>${esc(t)}</span></label>`).join("")}</details>`};
+  const pr=BND[1]>BND[0]?`<div class="fg fs"><b class="mono">Faixa de preço</b><div id="pv"></div><input type="range" id="pr0" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(0,this.value)"><input type="range" id="pr1" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(1,this.value)"></div>`:"";
+  const od=`<div class="fg fs"><b class="mono">Ordenar por preço</b><select onchange="ORD=this.value;drawGrid()"><option value="">Padrão</option><option value="asc" ${ORD==="asc"?"selected":""}>Menor preço</option><option value="desc" ${ORD==="desc"?"selected":""}>Maior preço</option></select></div>`;
   const sch=schema(CURC).map(([f,l,o])=>grp(f,l,withExtra(f,o,sc)));
-  const br=brands.length?grp("marca","Marca",shown.map(b=>[b,b]))+(brands.length>10?`<button class="more mono" onclick="BM=!BM;drawSide()">${BM?"Mostrar menos":"Mostrar mais"}</button>`:""):"";
+  const br=(brands.length&&CURC!=="daps"&&CURC!=="caixas")?grp("marca","Marca",shown.map(b=>[b,b]))+(brands.length>10?`<button class="more mono" onclick="BM=!BM;drawSide()">${BM?"Mostrar menos":"Mostrar mais"}</button>`:""):"";
+  if(brands.length)GCNT.marca=brands.length;
   const first=CURC?"":sch.shift();
   const h=`<div class="fhead"><b class="mono">Filtros</b><button class="mono" onclick="togF()">Fechar ×</button></div>`+first+pr+od+sch.join("")+br+`<button class="more mono" onclick="resetF(CURC);drawSide();drawGrid()">Limpar filtros</button>`;
   $("cfilters").innerHTML=h;pv();
@@ -498,7 +507,8 @@ function pv(){if(!$("pr0"))return;const a=PR[0]??BND[0],b=PR[1]??BND[1];$("pr0")
 function setP(i,v){v=+v;const a=PR[0]??BND[0],b=PR[1]??BND[1];PR=i?[PR[0],Math.max(v,a)]:[Math.min(v,b),PR[1]];pv();drawGrid()}
 function drawGrid(){
   const a=PR[0]??-1,b=PR[1]??1e12;
-  const l=scopeOf(CURC).filter(p=>Object.entries(S).every(([f,v])=>v.some(x=>vals(p,f).includes(x)))&&price(p)>=a&&price(p)<=b);
+  const act=Object.entries(S).filter(([f,v])=>v.length<(GCNT[f]||1e9));
+  const l=scopeOf(CURC).filter(p=>act.every(([f,v])=>v.some(x=>vals(p,f).includes(x)))&&price(p)>=a&&price(p)<=b);
   if(ORD)l.sort((x,y)=>ORD==="asc"?price(x)-price(y):price(y)-price(x));
   $("ccount2").textContent=l.length+" produto"+(l.length===1?"":"s");
   fill($("pgrid"),l);
@@ -530,16 +540,6 @@ function ps(k){selS=selS===k?null:k;renderGuide()}
 function sa(v){selA=v;renderGuide()}
 function sc(v){selC=v;renderGuide()}
 function st(v){selT=v;renderGuide()}
-/* ---------- números sempre em fonte limpa ---------- */
-const NSKIP=new Set(["SCRIPT","STYLE","TEXTAREA","INPUT","SELECT","OPTION","TITLE"]);
-function fixNums(root){
-  if(!document.createTreeWalker)return;
-  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){const p=n.parentNode;return p&&!NSKIP.has(p.nodeName)&&!(p.classList&&p.classList.contains("n"))&&/\d/.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}});
-  const list=[];while(w.nextNode())list.push(w.currentNode);
-  list.forEach(n=>{const f=document.createDocumentFragment();n.nodeValue.split(/(\d+(?:[.,]\d+)?)/).forEach((t,i)=>{if(i%2){const sp=document.createElement("span");sp.className="n";sp.textContent=t;f.appendChild(sp)}else if(t)f.appendChild(document.createTextNode(t))});n.parentNode.replaceChild(f,n)})
-}
-let nq=false;
-if(window.MutationObserver&&document.body.nodeType)new MutationObserver(()=>{if(nq)return;nq=true;requestAnimationFrame(()=>{nq=false;fixNums(document.body)})}).observe(document.body,{childList:true,subtree:true,characterData:true});
 /* ---------- página inicial ---------- */
 function renderHome(){$("cats").innerHTML=keys.map(k=>`<div class="csec" id="sec-${k}"><div class="hd"><span class="mono">${num(k)}</span><h3>${CATS[k].n}</h3><button class="all mono" onclick="go('cat','${k}')">Ver todos ↗</button></div><div class="grid">${PRODUCTS.filter(p=>p.cat===k).slice(0,3).map(card).join("")}</div></div>`).join("");revealInit()}
 $("nav").innerHTML=keys.map(k=>`<button data-k="${k}" onclick="go('cat','${k}')">${CATS[k].n}</button>`).join("")+`<button data-k="catalog" onclick="go('catalog')">Catálogo</button>`;
@@ -554,7 +554,7 @@ function why(){
   if(!/^https:\/\/[^\/]+$/.test(cleanUrl(window.SB_URL)))return "A URL no config.js está incorreta (deve ser algo como https://xxxx.supabase.co).";
   return "A chave no config.js está vazia ou incompleta: copie de novo a chave pública do Supabase.";
 }
-const ALLF=["conexao","design","formato","anc","microfone","sig","tipo","amp","tamanho"];
+const ALLF=["conexao","design","formato","anc","microfone","sig","tipo","circuito","amp","tamanho"];
 function rebuild(){PRODUCTS=SB?DBP:BASE;renderHome();
   if(CUR.v==="admin")adminList();else if(CUR.v==="cat"||CUR.v==="catalog"){drawSide();drawGrid()}else if(CUR.v==="guide")renderGuide()}
 async function load(){
@@ -605,10 +605,10 @@ async function saveItem(){
   if(similar(V("nome")).length&&!FORCE){dupHint(true);msg("Já existe um produto parecido. Confirme na caixa de aviso para adicionar mesmo assim.");return}
   const ss=(await SB.auth.getSession()).data.session;if(!ss){msg("Sessão expirada: entre novamente.");setAdmin(false);return}
   const c=A("cat").value,row={nome:V("nome"),marca:V("marca"),preco:V("preco"),cat:c,link:V("link")||"#",img:V("img"),descricao:V("desc")};
-  ALLF.forEach(f=>row[f]=null);(FLD[c]||[]).forEach(([f])=>{row[f]=(SEL[f]||[]).join("|")||null});
+  if(EDIT)ALLF.forEach(f=>row[f]=null);(FLD[c]||[]).forEach(([f])=>{row[f]=(SEL[f]||[]).join("|")||null});
   const q=EDIT?SB.from("products").update(row).eq("id",EDIT).select():SB.from("products").insert(row).select();
   const {data,error}=await q;
-  if(error){msg(/microfone/i.test(error.message)?"Falta atualizar o banco: rode no Supabase o arquivo supabase-atualizacao-microfone.sql.":"Erro ao salvar: "+error.message);return}
+  if(error){msg(/microfone|circuito/i.test(error.message)?"Falta atualizar o banco: rode no Supabase o arquivo supabase-atualizacao-circuito.sql.":"Erro ao salvar: "+error.message);return}
   if(!data||!data.length){msg("O banco recusou a gravação: o e-mail desta conta não é o cadastrado como dono no SQL.");return}
   const ed=EDIT;resetForm();msg(ed?"Item atualizado.":"Item adicionado.");load();
 }
@@ -638,7 +638,7 @@ async function login(){
 }
 async function logout(){await SB.auth.signOut();go("home")}
 const pbar=document.createElement("div");pbar.id="pbar";document.body.appendChild(pbar);
-renderHome();buildForm();fixNums(document.body);
+renderHome();buildForm();
 if(SB){PRODUCTS=[];renderHome();load();
   SB.auth.getSession().then(({data})=>setAdmin(!!data.session,data.session&&data.session.user.email));
   SB.auth.onAuthStateChange((_e,sess)=>setAdmin(!!sess,sess&&sess.user.email));}
