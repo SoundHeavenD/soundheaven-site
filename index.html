@@ -298,6 +298,9 @@ nav button.on::after{transform:scaleX(1)}
 .card .row b{font-family:"Inter",system-ui,sans-serif;font-weight:500;font-size:1.02rem;letter-spacing:-.005em}
 .card .br,.card .tag{font-family:"Inter",system-ui,sans-serif;font-weight:500}
 .card .row>span{font-family:"Inter",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+/* ---- catálogo: filtros que não se aplicam ao tipo escolhido ---- */
+.fg.off{opacity:.55;background:rgba(24,54,86,.1);filter:saturate(.3);border-radius:10px;padding-left:10px;padding-right:10px}
+.fg.off summary{cursor:not-allowed}.fg.off label{cursor:not-allowed}
 </style></head>
 <body>
 <header><div class="wrap">
@@ -493,14 +496,16 @@ function drawSide(){
   BND=ps.length?[Math.floor(Math.min(...ps)/10)*10,Math.ceil(Math.max(...ps)/10)*10]:[0,0];
   const brands=[...new Set(sc.map(p=>p.marca).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt"));
   const shown=BM?brands:brands.filter((b,i)=>i<10||(S.marca||[]).includes(b));
-  const grp=(f,l,o)=>{GCNT[f]=o.length;return `<details class="fg" data-g="${f}" ${OPEN[f]?"open":""}><summary class="mono">${l}</summary>${o.map(([v,t])=>`<label><input type="checkbox" data-f="${f}" data-v="${esc(v)}" ${(S[f]||[]).includes(v)?"checked":""}><span>${esc(t)}</span></label>`).join("")}</details>`};
+  const grp=(f,l,o,dis)=>{GCNT[f]=o.length;return `<details class="fg${dis?" off":""}" ${dis?'inert title="Não se aplica ao tipo escolhido"':""} data-g="${f}" ${OPEN[f]&&!dis?"open":""}><summary class="mono">${l}</summary>${o.map(([v,t])=>`<label><input type="checkbox" data-f="${f}" data-v="${esc(v)}" ${dis?"disabled":""} ${(S[f]||[]).includes(v)?"checked":""}><span>${esc(t)}</span></label>`).join("")}</details>`};
+  const ty=CURC===""?(S.cat||[]):[],typeSel=ty.length>0&&ty.length<keys.length,ap=new Set(typeSel?ty.flatMap(k=>FLD[k].map(x=>x[0])):[]);
+  const dis=f=>typeSel&&f!=="cat"&&!ap.has(f);
   const pr=BND[1]>BND[0]?`<div class="fg fs"><b class="mono">Faixa de preço</b><div id="pv"></div><input type="range" id="pr0" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(0,this.value)"><input type="range" id="pr1" min="${BND[0]}" max="${BND[1]}" step="10" oninput="setP(1,this.value)"></div>`:"";
   const od=`<div class="fg fs"><b class="mono">Ordenar por preço</b><select onchange="ORD=this.value;drawGrid()"><option value="">Padrão</option><option value="asc" ${ORD==="asc"?"selected":""}>Menor preço</option><option value="desc" ${ORD==="desc"?"selected":""}>Maior preço</option></select></div>`;
-  const sch=schema(CURC).map(([f,l,o])=>grp(f,l,withExtra(f,o,sc)));
+  const sch=schema(CURC).map(([f,l,o])=>grp(f,l,withExtra(f,o,sc),dis(f)));
   const br=(brands.length&&CURC!=="daps"&&CURC!=="caixas")?grp("marca","Marca",shown.map(b=>[b,b]))+(brands.length>10?`<button class="more mono" onclick="BM=!BM;drawSide()">${BM?"Mostrar menos":"Mostrar mais"}</button>`:""):"";
   if(brands.length)GCNT.marca=brands.length;
   const first=CURC?"":sch.shift();
-  const h=`<div class="fhead"><b class="mono">Filtros</b><button class="mono" onclick="togF()">Fechar ×</button></div>`+first+pr+od+sch.join("")+br+`<button class="more mono" onclick="resetF(CURC);drawSide();drawGrid()">Limpar filtros</button>`;
+  const h=`<div class="fhead"><b class="mono">Filtros</b><button class="mono" onclick="togF()">Fechar ×</button></div>`+first+sch.join("")+br+pr+od+`<button class="more mono" onclick="resetF(CURC);drawSide();drawGrid()">Limpar filtros</button>`;
   $("cfilters").innerHTML=h;pv();
 }
 function pv(){if(!$("pr0"))return;const a=PR[0]??BND[0],b=PR[1]??BND[1];$("pr0").value=a;$("pr1").value=b;$("pv").textContent=brl(a)+" – "+brl(b)}
@@ -518,6 +523,7 @@ $("cfilters").onchange=e=>{
   const t=e.target,f=t.dataset.f;if(!f)return;
   if(t.hasAttribute("data-all"))delete S[f];
   else{const a=S[f]||(S[f]=[]),i=a.indexOf(t.dataset.v);i<0?a.push(t.dataset.v):a.splice(i,1);if(!a.length)delete S[f]}
+  if(CURC===""&&S.cat&&S.cat.length<keys.length){const ap=new Set(S.cat.flatMap(k=>FLD[k].map(x=>x[0])));Object.keys(S).forEach(f=>{if(f!=="cat"&&f!=="marca"&&!ap.has(f))delete S[f]})}
   drawSide();drawGrid();
 };
 /* ---------- guia do fone ideal ---------- */
